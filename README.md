@@ -2,12 +2,15 @@ Example
 ======
 
 Fetch specific origin(will set that origin as the prefor)
+
 python event2qml.py -s schemas/QuakeML-BED-1.2.rng $DBR --orid 29792 -o test_prefor.xml 29529
 
 Fetch only the prefor:
+
 python event2qml.py -s schemas/QuakeML-BED-1.2.rng $DBR --prefor -o test_prefor.xml 29529
 
 With hostname/db discriminator:
+
 python event2qml.py -s schemas/QuakeML-BED-1.2.rng $DBR --prefor --discriminator atlas/2018006 -o test_prefor.xml 29529
 
 Event Export
