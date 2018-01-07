@@ -340,7 +340,7 @@ if __name__ == '__main__':
         handler = RotatingFileHandler(LOG_FILENAME, maxBytes=1048576, backupCount=5)
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-        logging.info("*** Starting from %s" % __file__)
+        logging.info("*** Starting from %s" % os.path.realpath(__file__))
 
     logging.basicConfig(level=logging.INFO)
     log.setLevel(level=log_level)
