@@ -40,6 +40,7 @@ Q_NAMESPACE         http://quakeml.org/xmlns/quakeml/1.2    # xmlns:q
 CATALOG_NAMESPACE   http://anss.org/xmlns/catalog/0.1       # xmlns:catalog
 BED_NAMESPACE       http://quakeml.org/xmlns/bed/1.2        # xmlns
 BEDRT_NAMESPACE     http://quakeml.org/xmlns/bed-rt/1.2     # xmlns
+NIEP_NAMESPACE      http://infp.ro/xmlns/niep/0.1           # xmlns:niep
 
 # Only allow the listed Mag types
 magnitude_type_subset &Tbl{

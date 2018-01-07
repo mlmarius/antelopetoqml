@@ -171,6 +171,8 @@ def setup_event2qml(options, database):
                               'http://quakeml.org/xmlns/quakeml/1.2')
     CATALOG_NAMESPACE = safe_pf_get(pf_object, 'CATALOG_NAMESPACE',
                                     'http://anss.org/xmlns/catalog/0.1')
+    NIEP_NAMESPACE = safe_pf_get(pf_object, 'NIEP_NAMESPACE',
+                                  'http://infp.ro/xmlns/niep/0.1')
     BED_NAMESPACE = safe_pf_get(pf_object, 'BED_NAMESPACE',
                                 'http://quakeml.org/xmlns/bed/1.2')
     BEDRT_NAMESPACE = safe_pf_get(pf_object, 'BEDRT_NAMESPACE',
@@ -246,6 +248,7 @@ def setup_event2qml(options, database):
                   uri_prefix=uri_prefix, agency_uri=agency_uri,
                   agency_id=agency_id, author=author,
                   q=Q_NAMESPACE, catalog=CATALOG_NAMESPACE,
+                  niep=NIEP_NAMESPACE,
                   bed=BED_NAMESPACE, bedrt=BEDRT_NAMESPACE,
                   info_description=info_description,
                   info_comment=info_comment,

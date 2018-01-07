@@ -13,6 +13,7 @@ class css2qml():
             uri_prefix='quakeml',agency_uri='local', agency_id='xx',
             author='antelope.event2qml',
             q='http://quakeml.org/xmlns/quakeml/1.2', catalog='http://anss.org/xmlns/catalog/0.1',
+            niep='http://infp.ro/xmlns/niep/0.1',
             bed='http://quakeml.org/xmlns/bed/1.2', bedrt='http://quakeml.org/xmlns/bed-rt/1.2',
             info_description='', info_comment='', add_origin=True,
             add_magnitude=True, add_fplane=True, add_mt=True, add_stamag=True,
@@ -58,6 +59,7 @@ class css2qml():
         self.bed = bed
         self.bedrt = bedrt
         self.namespace = self.bed #default to BED since we don't want to do RT for now
+        self.niep = niep
 
         self.info_description = info_description
         self.info_comment = info_comment
@@ -188,6 +190,7 @@ class css2qml():
                 '@xmlns:q': self.q,
                 '@xmlns': self.namespace,
                 '@xmlns:catalog': self.catalog,
+                '@xmlns:niep': self.niep,
                 'eventParameters': self.EventParameters
             }
         }
@@ -466,6 +469,7 @@ class css2qml():
 
         results = {
             '@publicID': self._id( 'magnitude/station', stamag['stamag.magid'], stamag['stamag.sta'] ),
+            '@niep:sta': stamag['stamag.sta'],
             'mag': {
                'value': stamag['stamag.magnitude']
                },
@@ -629,6 +633,7 @@ class css2qml():
 
         return {
             '@publicID': self._id( 'arrival', arrival['assoc.arid'], arrival['assoc.orid'] ),
+            '@niep:sta': arrival['arrival.sta'],
             'pickID': self._id( 'pick', arrival['assoc.arid'] ),
             'phase': arrival['assoc.phase'],
             'azimuth': arrival['assoc.esaz'],
