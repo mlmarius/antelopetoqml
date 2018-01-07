@@ -77,6 +77,7 @@ except Exception, e:
 import platform
 from logging.handlers import RotatingFileHandler
 
+appname = os.path.basename(__file__)+'@'+platform.node()
 
 #### Logging configuration
 logger = logging.getLogger('')
@@ -338,7 +339,6 @@ if __name__ == '__main__':
         log_level = 'INFO'
 
     if main_options.logdir is not None:
-        appname = os.path.basename(__file__)+'@'+platform.node()
         LOG_FILENAME = os.path.join(main_options.logdir, appname+'.log.txt')
         handler = RotatingFileHandler(LOG_FILENAME, maxBytes=1048576, backupCount=5)
         logger.addHandler(handler)
