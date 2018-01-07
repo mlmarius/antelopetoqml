@@ -74,6 +74,17 @@ try:
 except Exception, e:
     validation = False
 
+import platform
+from logging.handlers import RotatingFileHandler
+
+
+#### Logging configuration
+logger = logging.getLogger('')
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - ' + appname + ' - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+
+
 MODE = 'w'
 log = logging.getLogger(__name__)
 
@@ -303,6 +314,9 @@ if __name__ == '__main__':
     parser.add_option("-p", action="store", dest="pf",
                       default='event2qml.pf', help="parameter file to use")
 
+    parser.add_option("--logdir", type=str, dest="logdir", default=None,
+                      help="log to this file")
+
     # Output file
     parser.add_option("-o", action="store", dest="output_file",
                       default=False, help="Save output to file")
@@ -322,6 +336,12 @@ if __name__ == '__main__':
         log_level = 'DEBUG'
     elif main_options.verbose:
         log_level = 'INFO'
+
+    if main_options.logdir is not None:
+        appname = os.path.basename(__file__)+'@'+platform.node()
+        LOG_FILENAME = os.path.join(main_options.logdir, appname+'.log.txt')
+        handler = RotatingFileHandler(LOG_FILENAME, maxBytes=1048576, backupCount=5)
+        logger.addHandler(handler)
 
     logging.basicConfig(level=logging.INFO)
     log.setLevel(level=log_level)
