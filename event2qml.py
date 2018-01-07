@@ -2,6 +2,7 @@ from __future__ import print_function
 import os
 import sys
 import logging
+from logging.handlers import RotatingFileHandler
 
 sys.path.append(os.environ['ANTELOPE'] + "/data/python")
 
@@ -73,10 +74,6 @@ try:
     validation = True
 except Exception, e:
     validation = False
-
-import platform
-from logging.handlers import RotatingFileHandler
-
 
 MODE = 'w'
 log = logging.getLogger(__name__)
@@ -332,7 +329,7 @@ if __name__ == '__main__':
 
     if main_options.logdir is not None:
 
-        appname = os.path.basename(__file__)+'@'+platform.node()
+        appname = os.path.basename(__file__)
 
         #### Logging configuration
         logger = logging.getLogger('')
