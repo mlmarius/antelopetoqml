@@ -1,7 +1,9 @@
 import math
-
+from antelope.stock import grname
+import datetime
 from export_events.functions import *
-
+import os
+import rebhelper
 
 class css2qml():
     '''
@@ -17,13 +19,18 @@ class css2qml():
             bed='http://quakeml.org/xmlns/bed/1.2', bedrt='http://quakeml.org/xmlns/bed-rt/1.2',
             info_description='', info_comment='', add_origin=True,
             add_magnitude=True, add_fplane=True, add_mt=True, add_stamag=True,
-            add_arrival=True, discriminator=None ):
+            add_arrival=True, discriminator=None, database=None, prefor=False, orid=None):
 
         self.logging = getLogger('css2qml')
 
         self.evid = {}
         self.event = {}
         self.event = {}
+
+        self.prefor_only = prefor  # Save just the preferred origin
+        self.orid_only = orid      # Save just the selected origin
+
+        self.database = database
 
         self.uri_prefix = uri_prefix
         self.agency_uri = str(agency_uri).replace('/', '_').replace(' ', '_').lower()
@@ -96,6 +103,13 @@ class css2qml():
 
         self.logging.info( 'export QuakeML parameters for namespace: %s' % self.namespace )
 
+        if 'ronet' in self.database:
+            self.rebRoot = '/home/rt/bulletins_ronet/auto/reb/sent_by_email'
+        else:
+            self.rebRoot = '/home/rt/bulletins_ronet/manual/reb/sent_by_email'
+
+        self.logging.info("rebpath is %s " % self.rebRoot)
+
         self.EventParameters = self._new_EventParameters()
 
         # Add Event element
@@ -110,6 +124,9 @@ class css2qml():
                 self.EventParameters['event']['preferredOriginID'] = \
                         self._id('origin', self.event['event.prefor'])
 
+            mainOrigin = None
+            preforID = self.EventParameters['event'].get('preferredOriginID')
+
             if self.namespace == self.bed:
                 self.EventParameters['event']['origin'] = origins
             else:
@@ -118,6 +135,11 @@ class css2qml():
                 self.EventParameters['event']['originReferece'] = \
                         self._id('origin', self.event['event.prefor'])
 
+                self.logging.info('rebPath is %s' % rebPath)
+                if os.path.isfile(rebPath):
+                    self.logging.info('rebPath exists')
+                else:
+                    self.logging.info('rebPath does not exist')
 
         # Add Picks elements
         if self.add_arrival:
@@ -202,7 +224,7 @@ class css2qml():
 
         # Basic EventParameters object. This class serves as a container for Event objects.
 
-        return {
+        result = {
             '@publicID': self._id('eventParameters', self.evid),
             'description': self.info_description,
             'comment' : {
@@ -216,6 +238,12 @@ class css2qml():
                 'version': stock.now()
             }
         }
+
+        if self.database is not None:
+            result['@niep:database'] = self.database
+
+        return result
+
 
 
     def new_event( self, event=None, evid=None ):
@@ -255,9 +283,6 @@ class css2qml():
                 'version': stock.now()
             }
         }
-
-
-
 
         if self.event and self.event.is_valid():
             '''
@@ -397,7 +422,8 @@ class css2qml():
             'creationInfo' : {
                 'author': origin['origin.auth'],
                 'version': origin['origin.lddate']
-            }
+            },
+            'niep:feregion': grname(origin['origin.lat'], origin['origin.lon'])
         }
 
         if lat_u:
@@ -419,6 +445,28 @@ class css2qml():
             qmlorigin['arrival'] = \
                     [ self._convert_arrival(a) for a in self.event.all_arrivals_orid( origin['origin.orid'] )]
 
+
+        rebregion, intensity, operator = None, None, None
+
+        otime = qmlorigin['time']['value']
+        otime = datetime.datetime.strptime(otime[:-5], '%Y-%m-%dT%H:%M:%S')
+        otime = otime.strftime('%Y%j_%H_%M_%S')
+        rebPath = os.path.join(self.rebRoot, otime)
+
+        try:
+            rebregion, intensity, operator = rebhelper.parse_header(rebPath)
+        except:
+            self.logging.warning('rebhelper could not parse_header for %s' % rebPath)
+            pass
+
+        if rebregion is not None:
+            qmlorigin['niep:rebregion'] = rebregion
+
+        if intensity is not None:
+            qmlorigin['niep:intensity'] = intensity
+
+        if operator is not None:
+            qmlorigin['niep:operator'] = operator
 
         # Extend element with catalog information
         qmlorigin.update( self._catalog_info( origin['origin.orid'], auth=origin['origin.auth'] ) )

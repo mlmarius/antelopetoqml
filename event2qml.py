@@ -76,12 +76,11 @@ except Exception, e:
     validation = False
 
 MODE = 'w'
-log = logging.getLogger(__name__)
 
 
 def event_xml(event_id, event, quakeml, output_file):
     # Get event information from Antelope
-    log.info('Load information for event:[%s]' % event_id)
+    logging.info('Load information for event:[%s]' % event_id)
     event.get_event(event_id)
     # Convert the CSS3.0 schema into QuakeML format
     # Send all CSS database information to the QML class.
@@ -91,7 +90,7 @@ def event_xml(event_id, event, quakeml, output_file):
     results = xmlencode(quakeml.dump())
     if output_file:
         try:
-            log.info('Write results to file [%s] mode:%s' % (
+            logging.info('Write results to file [%s] mode:%s' % (
                 output_file, MODE))
 
             ofile = open(output_file, MODE)
@@ -99,22 +98,22 @@ def event_xml(event_id, event, quakeml, output_file):
 
             ofile.close()
         except Exception, e:
-            log.error('Problems writing to file [%s]=>%s' % (
+            logging.error('Problems writing to file [%s]=>%s' % (
                 output_file, e))
     else:
         # Output to log if needed.
-        log.debug('Print Event in QuakeML format')
+        logging.debug('Print Event in QuakeML format')
         # This will go to STDOUT.
         print(results)
 
     if validation:
-        log.debug('Try to validate the results:')
+        logging.info('Try to validate the results:')
 
         valid = 'unknown'
         schema_file = os.path.join(os.environ['ANTELOPE'],
                                    '/contrib/data/quakeml/QuakeML-1.2.rng')
 
-        log.debug('Looking for file: %s' % schema_file)
+        logging.debug('Looking for file: %s' % schema_file)
 
         if not os.path.exists(schema_file):
             ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -122,7 +121,7 @@ def event_xml(event_id, event, quakeml, output_file):
 
         if os.path.exists(schema_file):
 
-            log.debug('Read file: %s' % schema_file)
+            logging.debug('Read file: %s' % schema_file)
 
             try:
                 relaxng = etree.RelaxNG(file=schema_file)
@@ -131,15 +130,15 @@ def event_xml(event_id, event, quakeml, output_file):
                 valid = relaxng.validate(xmldoc)
 
             except Exception, e:
-                log.warning("%s => %s" % (Exception, e))
-                log.warning("Cannot validate.")
+                logging.warning("%s => %s" % (Exception, e))
+                logging.warning("Cannot validate.")
 
         else:
-            log.warning('Missing schema file: %s' % schema_file)
+            logging.warning('Missing schema file: %s' % schema_file)
 
-        log.info('VALID QuakeML-1.2 ? => %s' % valid)
+        logging.info('VALID QuakeML-1.2 ? => %s' % valid)
     else:
-        log.debug('Output QuakeMl not validated.')
+        logging.info('Output QuakeMl not validated.')
 
 
 def setup_event2qml(options, database):
@@ -257,7 +256,8 @@ def setup_event2qml(options, database):
                   add_fplane=add_fplane,
                   add_mt=add_mt, add_stamag=add_stamag,
                   add_arrival=add_arrival,
-                  discriminator=options.discriminator)
+                  discriminator=options.discriminator, database=database,
+                  orid=options.orid, prefor=options.prefor)
 
     return ev, qml
 
@@ -346,6 +346,8 @@ if __name__ == '__main__':
         logging.info("*** Starting from %s" % os.path.realpath(__file__))
 
     logging.basicConfig(level=logging.INFO)
+    
+    log = logging.getLogger(__name__)
     log.setLevel(level=log_level)
     log.info(parser.get_version())
     log.info('loglevel=%s' % log_level)
